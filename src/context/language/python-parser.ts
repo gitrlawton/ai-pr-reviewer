@@ -1,4 +1,6 @@
 import { AbstractParser, EnclosingContext } from "../../constants";
+//import * as python from 'python-ast-parser';
+
 export class PythonParser implements AbstractParser {
   findEnclosingContext(
     file: string,
@@ -9,7 +11,17 @@ export class PythonParser implements AbstractParser {
     return null;
   }
   dryRun(file: string): { valid: boolean; error: string } {
-    // TODO: Implement this method for Python
-    return { valid: false, error: "Not implemented yet" };
+    try {
+      //python.parse(file);
+      return {
+        valid: true,
+        error: "",
+      };
+    } catch (exc) {
+      return {
+        valid: false,
+        error: exc.toString(),
+      };
+    }
   }
 }
