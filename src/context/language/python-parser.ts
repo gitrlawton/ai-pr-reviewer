@@ -36,17 +36,27 @@ export class PythonParser implements AbstractParser {
     let largestEnclosingContext: Parser.SyntaxNode | null = null;
     let largestSize = 0;
 
-    // Traverse the syntax tree using tree-sitter's cursor API for efficient tree traversal
+    console.log("Parsing file contents:", file);
+
+    // Traverse the syntax tree using tree-sitter's cursor API for
+    // efficient tree traversal
     const cursor = tree.rootNode.walk();
 
     do {
       const node = cursor.currentNode;
       if (
-        // Function Definition and Class Definition are python's node types equivalent to
-        // Javascript-parser's Function and Interface nodes.
+        // "Function definition" and "Class definition" are python's node
+        // equivalents of javascript-parser's Function and Interface nodes.
         node.type === "function_definition" ||
         node.type === "class_definition"
       ) {
+        // Logging for each function/class node
+        console.log(`Found ${node.type}:`, {
+          text: file.substring(node.startIndex, node.endIndex),
+          start: node.startPosition,
+          end: node.endPosition,
+        });
+
         ({ largestSize, largestEnclosingContext } = processNode(
           node,
           lineStart,
@@ -59,6 +69,17 @@ export class PythonParser implements AbstractParser {
       cursor.gotoNextSibling() ||
       (cursor.gotoParent() && cursor.gotoNextSibling())
     );
+
+    // Add debug logging for the final selected context
+    if (largestEnclosingContext) {
+      console.log("Selected context:", {
+        type: largestEnclosingContext.type,
+        text: file.substring(
+          largestEnclosingContext.startIndex,
+          largestEnclosingContext.endIndex
+        ),
+      });
+    }
 
     return {
       enclosingContext: largestEnclosingContext,
